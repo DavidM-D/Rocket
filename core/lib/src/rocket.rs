@@ -123,7 +123,7 @@ impl Rocket {
     }
 
     #[inline]
-    fn write_response(
+    pub fn write_response(
         &self,
         mut response: Response<'_>,
         mut hyp_res: hyper::FreshResponse<'_>,
@@ -197,7 +197,7 @@ impl Rocket {
     }
 
     #[inline]
-    pub(crate) fn dispatch<'s, 'r>(
+    pub fn dispatch<'s, 'r>(
         &'s self,
         request: &'r mut Request<'s>,
         data: Data

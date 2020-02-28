@@ -91,7 +91,7 @@ impl Data {
     }
 
     // FIXME: This is absolutely terrible (downcasting!), thanks to Hyper.
-    pub(crate) fn from_hyp(mut body: HyperBodyReader<'_, '_>) -> Result<Data, &'static str> {
+    pub fn from_hyp(mut body: HyperBodyReader<'_, '_>) -> Result<Data, &'static str> {
         #[inline(always)]
         #[cfg(feature = "tls")]
         fn concrete_stream(stream: &mut dyn NetworkStream) -> Option<NetStream> {
@@ -110,11 +110,10 @@ impl Data {
                 .map(|s| NetStream::Http(s.clone()))
         }
 
+
         // Retrieve the underlying Http(s)Stream from Hyper.
-        let net_stream = match concrete_stream(*body.get_mut().get_mut()) {
-            Some(net_stream) => net_stream,
-            None => return Err("Stream is not an HTTP(s) stream!")
-        };
+        let net_stream =
+            concrete_stream(*body.get_mut().get_mut()).unwrap_or(NetStream::Empty);
 
         // Set the read timeout to 5 seconds.
         let _ = net_stream.set_read_timeout(Some(Duration::from_secs(5)));
@@ -230,7 +229,7 @@ impl Data {
     // bytes `vec[pos..cap]` are buffered and unread. The remainder of the data
     // bytes can be read from `stream`.
     #[inline(always)]
-    pub(crate) fn new(mut stream: BodyReader) -> Data {
+    pub fn new(mut stream: BodyReader) -> Data {
         trace_!("Data::new({:?})", stream);
         let mut peek_buf: Vec<u8> = vec![0; PEEK_BYTES];
 
@@ -260,7 +259,7 @@ impl Data {
 
     /// This creates a `data` object from a local data source `data`.
     #[inline]
-    pub(crate) fn local(data: Vec<u8>) -> Data {
+    pub fn local(data: Vec<u8>) -> Data {
         let empty_stream = Cursor::new(vec![]).chain(NetStream::Empty);
 
         Data {

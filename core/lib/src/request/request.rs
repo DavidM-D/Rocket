@@ -781,7 +781,7 @@ impl<'r> Request<'r> {
     }
 
     /// Convert from Hyper types into a Rocket Request.
-    pub(crate) fn from_hyp(
+    pub fn from_hyp(
         rocket: &'r Rocket,
         h_method: hyper::Method,
         h_headers: hyper::header::Headers,
